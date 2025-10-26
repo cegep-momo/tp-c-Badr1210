@@ -13,3 +13,5 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # flag pour tous les warnings possible
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+
+file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR})
