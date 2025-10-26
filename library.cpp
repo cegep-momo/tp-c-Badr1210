@@ -1,5 +1,8 @@
 #include <iostream>
 #include <algorithm>
+#include <cctype>
+#include <string>
+
 
 #include "library.h"
 
@@ -152,31 +155,71 @@ void Library::displayAllBooks() {
         cout << "Aucun livre dans la bibliothèque.\n";
         return;
     }
-    
-    cout << "\n=== TOUS LES LIVRES ===\n";
-    for (size_t i = 0; i < books.size(); ++i) {
+
+    // Vue triée des livres
+    vector<Book*> sorted;
+    for (auto& b : books) sorted.push_back(b.get());
+
+    sort(sorted.begin(), sorted.end(), [](Book* a, Book* b) {
+        string t1 = a->getTitle();
+        string t2 = b->getTitle();
+        string a1 = a->getAuthor();
+        string a2 = b->getAuthor();
+
+        // conversion en minuscule pour comparaison insensible à la casse
+        transform(t1.begin(), t1.end(), t1.begin(), ::tolower);
+        transform(t2.begin(), t2.end(), t2.begin(), ::tolower);
+        transform(a1.begin(), a1.end(), a1.begin(), ::tolower);
+        transform(a2.begin(), a2.end(), a2.begin(), ::tolower);
+
+        if (t1 == t2) {
+            return a1 < a2; // si titres identiques, tri par auteur
+        }
+        return t1 < t2; // sinon tri par titre
+    });
+
+    cout << "\n=== TOUS LES LIVRES (TRIÉS PAR TITRE ET AUTEUR) ===\n";
+    for (size_t i = 0; i < sorted.size(); ++i) {
         cout << "\nLivre " << (i + 1) << " :\n";
-        cout << books[i]->toString() << "\n";
+        cout << sorted[i]->toString() << "\n";
         cout << "-------------------------\n";
     }
 }
 
+
 // Display available books
 void Library::displayAvailableBooks() {
     auto available = getAvailableBooks();
-    
     if (available.empty()) {
         cout << "Aucun livre disponible pour emprunt.\n";
         return;
     }
-    
-    cout << "\n=== LIVRES DISPONIBLES ===\n";
+
+    sort(available.begin(), available.end(), [](Book* a, Book* b) {
+        string t1 = a->getTitle();
+        string t2 = b->getTitle();
+        string a1 = a->getAuthor();
+        string a2 = b->getAuthor();
+
+        transform(t1.begin(), t1.end(), t1.begin(), ::tolower);
+        transform(t2.begin(), t2.end(), t2.begin(), ::tolower);
+        transform(a1.begin(), a1.end(), a1.begin(), ::tolower);
+        transform(a2.begin(), a2.end(), a2.begin(), ::tolower);
+
+        if (t1 == t2) {
+            return a1 < a2;
+        }
+        return t1 < t2;
+    });
+
+    cout << "\n=== LIVRES DISPONIBLES (TRIÉS PAR TITRE ET AUTEUR) ===\n";
     for (size_t i = 0; i < available.size(); ++i) {
         cout << "\nLivre " << (i + 1) << " :\n";
         cout << available[i]->toString() << "\n";
         cout << "---------------------------\n";
     }
 }
+
 
 // Display all users
 void Library::displayAllUsers() {
