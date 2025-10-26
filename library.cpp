@@ -2,11 +2,33 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <fstream>
+#include <ctime>
+#include <iomanip>
 
 
 #include "library.h"
 
 using namespace std;
+
+//bonus 
+static void logActivity(const string& action, const string& isbn, const string& userId) {
+    ofstream log("data/activity.log", ios::app);
+    if (!log.is_open()) return;
+
+    // Obtenir la date et l'heure locales
+    time_t now = time(nullptr);
+    tm* local = localtime(&now);
+    char buffer[64];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local);
+
+    log << "[" << action << "] "
+        << "ISBN: " << isbn
+        << " | Utilisateur: " << userId
+        << " | Date: " << buffer
+        << "\n";
+    log.close();
+}
 
 // Constructor
 Library::Library() {}
@@ -126,6 +148,9 @@ bool Library::checkOutBook(const string& isbn, const string& userId) {
     if (book && user && book->getAvailability()) {
         book->checkOut(user->getName());
         user->borrowBook(isbn);
+
+        logActivity("EMPRUNT", isbn, userId);
+
         return true;
     }
     return false;
@@ -137,13 +162,18 @@ bool Library::returnBook(const string& isbn) {
     
     if (book && !book->getAvailability()) {
         // Find the user who borrowed this book
+        string userId ="";
         for (auto& user : users) {
             if (user->hasBorrowedBook(isbn)) {
+                userId = user->getUserId();
                 user->returnBook(isbn);
                 break;
             }
         }
         book->returnBook();
+
+        logActivity("RETOUR", isbn, userId);
+
         return true;
     }
     return false;

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <fstream>
 
 #include "library.h"
 #include "filemanager.h"
@@ -32,6 +33,7 @@ void displayMenu() {
     cout << "11. Statistiques de la Bibliothèque\n";
     cout << "12. Sauvegarder les Données\n";
     cout << "13. Créer une Sauvegarde\n";
+    cout << "14. Afficher le journal des activites\n";
     cout << "0.  Quitter\n";
     cout << "======================================================\n";
     cout << "Entrez votre choix : ";
@@ -43,6 +45,29 @@ string getInput(const string& prompt) {
     getline(cin, input);
     return input;
 }
+
+void displayActivityLog() {
+    ifstream logFile("data/activity.log");
+    if (!logFile.is_open()) {
+        cout << "\nAucun journal d'activité trouvé.\n";
+        return;
+    }
+
+    cout << "\n=== JOURNAL DES ACTIVITÉS ===\n";
+    string line;
+    int lineCount = 0;
+    while (getline(logFile, line)) {
+        cout << line << "\n";
+        lineCount++;
+    }
+
+    if (lineCount == 0) {
+        cout << "Le journal est vide.\n";
+    }
+
+    logFile.close();
+}
+
 
 int main() {
     Library library;
@@ -219,6 +244,12 @@ int main() {
             
             case 13: { // Create Backup
                 fileManager.createBackup();
+                pauseForInput();
+                break;
+            }
+
+            case 14: { // Display Activity Log
+                displayActivityLog();
                 pauseForInput();
                 break;
             }
